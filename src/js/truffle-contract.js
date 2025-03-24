@@ -16,7 +16,6 @@ var contract = (function(module) {
   function Provider(provider) {
     this.provider = provider;
   }
-
   Provider.prototype.send = function() {
     return this.provider.send.apply(this.provider, arguments);
   };
@@ -24,7 +23,6 @@ var contract = (function(module) {
   Provider.prototype.sendAsync = function() {
     return this.provider.sendAsync.apply(this.provider, arguments);
   };
-
   var BigNumber = (new Web3()).toBigNumber(0).constructor;
 
   var Utils = {
