@@ -62,4 +62,26 @@ contract("Election", function(accounts){
         })
     })
 
+    it("throwing an exception in double voting", function(){
+        return Election.deployed().then(async function(instance){
+            electionInstance = instance;
+            candidateId = 2;
+            await electionInstance.vote(candidateId,{from: accounts[1]})
+            return electionInstance.candidates(2);
+        }).then(async function(candidate){
+             assert.equal(candidate[2], 1, 'The vote was casted');
+             return electionInstance.vote(1, {from: accounts[1]})
+
+        }).then(assert.fail).catch(function(error){
+            assert(error.message.indexOf('revert') >= 0, 'Error container revert')
+            return electionInstance.candidates(1);
+        }).then(function(candidate){
+            assert.equal(candidate[2], 1, 'The vote count of candidate 1 was not incremented')
+            return electionInstance.candidates(2);
+        }).then(function(candidate){
+            assert.equal(candidate[2], 1, 'The vote count of candidate 2 was not incremented')
+            return electionInstance.candidates(1);
+        })
+    })
+
 })
