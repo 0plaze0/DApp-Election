@@ -66,9 +66,12 @@ const App = {
                 electionInstance = instance;
                 return electionInstance.candidatesCount();
             })
-            .then((candidatesCount) => {
+            .then(async (candidatesCount) => {
                 let candidatesResult = $("#candidatesResults");
                 candidatesResult.empty();
+
+                let candidateSelect = $("#candidateSelect");
+                candidateSelect.empty();
 
                 let candidatePromises = [];
 
@@ -89,12 +92,21 @@ const App = {
                               </tr>
                           `;
                             candidatesResult.append(candidateTemplate);
+
+                            let candidateOptions = `
+                                <option value=${id}>${name}</option>
+                            `;
+                            candidateSelect.append(candidateOptions);
                         })
                     );
                 }
 
                 // Wait for all candidate retrievals to complete
-                return Promise.all(candidatePromises);
+                
+                return await electionInstance.voters(App.account);
+            })
+            .then((hasVoted) => {
+                if (hasVoted) $("form").hide();
             })
             .then(() => {
                 loader.hide();
@@ -107,7 +119,8 @@ const App = {
 
     // Method to cast a vote (to be implemented)
     castVote: function () {
-        let candidateId = $("#candidatesSelect").val();
+        let candidateId = $("#candidateSelect").val();
+        console.log(candidateId)
         App.contracts.Election.deployed()
             .then((instance) => {
                 return instance.vote(candidateId, { from: App.account });
