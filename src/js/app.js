@@ -41,6 +41,7 @@ const App = {
             App.contracts.Election = TruffleContract(election);
             App.contracts.Election.setProvider(App.web3Provider);
 
+            App.listenForEvents();
             return App.render();
         });
     },
@@ -133,7 +134,21 @@ const App = {
                 console.error(err);
             });
     },
+
+    listenForEvents: function(){
+        App.contracts.Election.deployed().then(function(instance){
+            instance.voteEvent({}, {
+                formBlock:0,
+                toBlock: 'lastest'
+            }).watch(function(error, event){
+                console.log("An event as triggered", event);
+
+                App.render();
+            })
+        })
+    }
 };
+
 
 $(function () {
     $(window).on("load", function () {
